@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-#  appDHT.py
-#  
-
 import time
 from datetime import datetime
 import sqlite3
@@ -13,37 +7,37 @@ import RPi.GPIO as GPIO
 from picamera import PiCamera
 from time import sleep
 
-#tensorflow image recognition model
+# tensorflow image recognition model
 from lobe import ImageModel
 
-#custom google sheets API
+# custom google sheets API
 from Sheets_API import Sheets_Logging
 
 dbname='sensorData.db'
 
-#Create input, output, and camera objects
+# create camera, LED, servo, and ir sensor objects
 button = Button(2)
 
-red_led = LED(17) 
-white_led = PWMLED(24) #Status light and retake photo
+red_led = LED(17) # bin state LED
+white_led = PWMLED(24) # camera state LED
 
 general_ir = Button(23)
 recycling_ir = Button(22)
 
 servo = Servo(19)
-servo.value = 0  #initate servo to mid point
+servo.value = 0  # initate servo to mid point
 
+# count that records row number for google sheets writing
 global count
-count = 133 #change to current position of last entry
+count = 133 # change to current position of last entry
 
 camera = PiCamera()
 
 # Load Lobe TF model
-# --> Change model file path as needed
 model = ImageModel.load('/home/pi/Lobe')
 
 
-# get data from DHT sensor
+# run after button press
 def get_data(count):   
     white_led.blink(0.1,0.1)
     sleep(1)
@@ -51,30 +45,30 @@ def get_data(count):
     white_led.on()
     # Start the camera preview
     camera.start_preview(alpha=200)
-    # wait 2s or more for light adjustment
+    # wait 0.5s for light adjustment
     sleep(0.5) 
-    # Optional image rotation for camera
-
+    # image rotation for camera
     camera.rotation = 90
-    #Input image file path here
-
+    # new image file path
     camera.capture('/home/pi/Sensors_Database/dhtWebServer/static/image.jpg')
-    #Stop camera
     camera.stop_preview()
     white_led.off()
     sleep(1)
+    
     # Run photo through Lobe TF model
     result = model.predict_from_file('/home/pi/Sensors_Database/dhtWebServer/static/image.jpg')
     packaging = result.prediction
     
-    #check which bin through ir sensors
+    # check which bin chosen through ir sensors
     general = 0
     recycling = 0
     
-    timeout = time.time() + 10 #10 seconds
+    # start 10 second timer
+    timeout = time.time() + 10 
     print('waiting for bin...')
-    red_led.on() #turn on red LED to tell user bin is ready
-    
+    # turn on red LED to tell user bin is ready
+    red_led.on() 
+    # start while loop waiting for IR sensor to be tripped or until 10 seconds have passed
     while time.time() < timeout:
         if general_ir.is_pressed is False:
             general = 1
@@ -88,18 +82,15 @@ def get_data(count):
     
     red_led.off()
 
-    #log data on local SQlite database AND cloud google sheets API
+    # log data on local SQlite database AND cloud google sheets API
     log_data(packaging, general, recycling, count)
-      
-    #led_select(result.prediction)
-     
-    
 
-# log sensor data on database
+    
+# log sensor data
 def log_data (packaging, general, recycling, count):
     print("logging data...")
     
-    #log data on local SQlite database
+    # log data on local SQlite database
     conn=sqlite3.connect(dbname)
     curs=conn.cursor()
     
@@ -107,10 +98,11 @@ def log_data (packaging, general, recycling, count):
     conn.commit()
     conn.close()
     
-    #log data on cloud through google sheets API
+    # log data on cloud through google sheets API
     doc = Sheets_Logging()
-    date = datetime.now() #get date and time
-
+    date = datetime.now() # get current date and time
+    
+    # assign g/co2 variable
     if packaging == "Aluminium Can":
         co2 = 164
     if packaging == "Cardboard Brown":
@@ -141,14 +133,16 @@ def log_data (packaging, general, recycling, count):
         co2 = 44
     if packaging == "Short Tin Can":
         co2 = 196
-
+        
+    # write data to google sheets
     data = [str(date).split('.')[0], packaging, general, recycling, co2]
     print(data)
     doc.write_data(data, count)
     
-    auto_sort(packaging) #uncomment to enable auto sort mode
+    # auto sort mode
+    auto_sort(packaging) # uncomment to enable auto sort mode
 
-# display database data
+# optional display database data
 def display_data():
     conn=sqlite3.connect(dbname)
     curs=conn.cursor()
@@ -157,13 +151,13 @@ def display_data():
         print (row)
     conn.close()
 
-#auto sort mode
+# auto sort mode
 def auto_sort(packaging):
     print('auto sorting...')
     
-    which_bin = 1 #1 = recycling, 0 = general
-    
-    #classify which bin it belongs in
+    # whcih bin to throw away in: 1 = recycling, 0 = general
+    which_bin = 1 
+
     if packaging == "Aluminium Can":
         which_bin = 0
     if packaging == "Cardboard Brown":
@@ -195,23 +189,23 @@ def auto_sort(packaging):
     if packaging == "Short Tin Can":
         which_bin = 0
         
-    #actuate servo
+    # actuate servo accordingly
     if which_bin == 1:
-        servo.value = 1 #push trash right to recycling 
+        servo.value = 1 # push trash left to recycling 
     if which_bin == 0:
-        servo.value = -1 #push trash left to general
+        servo.value = -1 # push trash right to general
         
     sleep(2)
     servo.value = 0
     
-    
+# wait for button press    
 while True:
     if button.is_pressed:
-        count += 1 #increment to write to next row on google sheets
+        count += 1 # increment to write to next row on google sheets
         get_data(count)
         #display_data()
     else:
-        # Pulse status light
+        # pulse status light
         white_led.pulse(2,1)
     sleep(1)
 
