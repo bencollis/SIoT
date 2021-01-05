@@ -10,7 +10,7 @@ class Sheets_Logging:
    # The ID and range of a sample spreadsheet.
    SPREADSHEET_ID = '1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM'
    RANGE_NAME = 'trash_data'
-   # If modifying these scopes, delete the file token.pickle.
+
    SCOPES = ['https://www.googleapis.com/auth/spreadsheets',
              'https://www.googleapis.com/auth/drive.file',
              'https://www.googleapis.com/auth/drive']
@@ -20,13 +20,7 @@ class Sheets_Logging:
        self.credentials = self.auth()
 
    def auth(self):
-       """Shows basic usage of the Sheets API.
-       Prints values from a sample spreadsheet.
-       """
        creds = None
-       # The file token.pickle stores the user's access and refresh tokens, and is
-       # created automatically when the authorization flow completes for the first
-       # time.
        if path.exists('token.pickle'):
            with open('token.pickle', 'rb') as token:
                creds = pickle.load(token)
@@ -63,6 +57,7 @@ class Sheets_Logging:
            'values': values
        }
        range_name = 'trash_data'
+      # Append to row as defined by count variable 
        result = service.spreadsheets().values().append(
            spreadsheetId=self.SPREADSHEET_ID, range='D{}:H{}'.format(count, count),
            valueInputOption='USER_ENTERED', body=body).execute()
