@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" >
+       
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawRecyclingChart);
+      google.charts.setOnLoadCallback(drawMaterialChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawMaterialChart() {
+        
+        // Create the data table.
+        var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=N31:O33');
+        query.send(handleQueryResponseMaterial);
+
+      }  
+      
+         
+      function drawRecyclingChart() {
+        
+        // Create the data table.
+        var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=L32:M33');
+        query.send(handleQueryResponseRecycling);
+
+        
+        
+      }
+
+      // Instantiate and draw our chart, passing in some options.
+        function handleQueryResponseMaterial(response) {
+          var options = {title: 'Material Breakdown',
+                     titleTextStyle: { fontName: 'arial', fontSize: 20, },
+                     width:800,
+                     height:500,};
+       
+          var data = response.getDataTable();
+          var chart = new google.visualization.PieChart(document.getElementById('Material_div'));
+          chart.draw(data, options);
+      }
+      
+      function handleQueryResponseRecycling(response) {
+          var options = {title: 'Recycling Correctness',
+                     titleTextStyle: { fontName: 'arial', fontSize: 20, },
+                     width:800,
+                     height:500,};
+       
+          var data = response.getDataTable();
+          var chart = new google.visualization.PieChart(document.getElementById('Recycling_div'));
+          chart.draw(data, options);
+      }
+    </script>
+  <body>
+      <h1 style="text-align:center">Recycling Habits</h1>
+    <style>
+      table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+    </style>
+    <table class="center">
+      <tr>
+        <td><div id="Material_div" align='center'></div></td>
+        <td><div id="Recycling_div" align='center'></div></td>
+      </tr>
+    </table>
+  </body>
+</html>

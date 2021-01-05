@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <h1 style="text-align:center">Raw Data</h1>
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', {
+      'packages': ['table']
+    });
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(draw);
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+      // Create the data table.
+      var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=D13:H150');
+      query.send(handleQueryResponse);
+    }
+
+    function draw() {
+      drawToolbar();
+      drawChart();
+    }
+
+    function handleQueryResponse(response) {
+      var data = response.getDataTable();
+      var table = new google.visualization.Table(document.getElementById('table_div'));
+      table.draw(data, {
+        showRowNumber: true,
+        width: '50%',
+        height: '100%'
+      });
+    }
+
+    function drawToolbar() {
+      var components = [{
+          type: 'html',
+          datasource: 'https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=D13:H150'
+        },
+        {
+          type: 'csv',
+          datasource: 'https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=D13:H150'
+        },
+      ];
+      var container = document.getElementById('toolbar_div');
+      google.visualization.drawToolbar(container, components);
+    };
+    google.charts.setOnLoadCallback(draw);
+  </script>
+</head>
+
+<body>
+  <div id="toolbar_div" align='center'></div>
+  <br>
+  <div id="table_div" align='center'></div>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<html>
+
+<head>
+  <!--Load the AJAX API-->
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    // Load the Visualization API and the controls package.
+    google.charts.load('current', {
+      'packages': ['corechart', 'controls']
+    });
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      // Create the data table.
+      var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=D13:D,I13:I');
+      query.send(handleQueryResponse);
+    }
+    // Callback that creates and populates a data table,
+    // instantiates a dashboard, a range slider and a pie chart,
+    // passes in the data and draws it.
+    function handleQueryResponse(response) {
+      var data = response.getDataTable();
+      // Create a dashboard.
+      var dashboard = new google.visualization.Dashboard(
+        document.getElementById('dashboard_div'));
+      // Create a range slider, passing some options
+      var timeRangeSlider = new google.visualization.ControlWrapper({
+        'controlType': 'ChartRangeFilter',
+        'containerId': 'filter_div',
+        'options': {
+          'filterColumnLabel': 'datetime'
+        }
+      });
+      // Create a pie chart, passing some options
+      var pieChart = new google.visualization.ChartWrapper({
+        'chartType': 'LineChart',
+        'containerId': 'chart_div',
+        'options': {
+          'title': 'CO2 Generated (g)',
+          'titleTextStyle': {
+            fontName: 'arial',
+            fontSize: 20,
+          },
+          'legend': 'right',
+          'hAxis': {
+            'format': 'MMM dd, HH:mm'
+          },
+          'vAxis': {
+            'format': '####'
+          }
+        }
+      });
+      // Establish dependencies, declaring that 'filter' drives 'pieChart',
+      // so that the pie chart will only display entries that are let through
+      // given the chosen slider range.
+      dashboard.bind(timeRangeSlider, pieChart);
+      // Draw the dashboard.
+      dashboard.draw(data);
+    }
+  </script>
+</head>
+
+<body>
+  <!--Div that will hold the dashboard-->
+  <h1 style="text-align:center">Carbon Footprint</h1>
+
+  <table class="center">
+    <tr>
+      <td>
+        <div id="dashboard_div">
+          <!--Divs that will hold each control and chart-->
+          <div id="chart_div" style='width: 915px; height: 500px;'></div>
+          <div id="filter_div" style='width: 915px; height: 100px;'></div>
+      </td>
+    </tr>
+    </div>
+</body>
+
+</html>
