@@ -4,10 +4,10 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" >
        
-      // Load the Visualization API and the corechart package.
+      // Load the Visualization API and the corechart package
       google.charts.load('current', {'packages':['corechart']});
 
-      // Set a callback to run when the Google Visualization API is loaded.
+      // Set a callback to run when the Google Visualization API is loaded
       google.charts.setOnLoadCallback(drawRecyclingChart);
       google.charts.setOnLoadCallback(drawMaterialChart);
 
@@ -16,24 +16,20 @@
       // draws it.
       function drawMaterialChart() {
         
-        // Create the data table.
+        // Connect google sheets for material types
         var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=N31:O33');
         query.send(handleQueryResponseMaterial);
 
       }  
-      
-         
+              
       function drawRecyclingChart() {
-        
-        // Create the data table.
+        // Connect google sheets for recycling correctness
         var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1XX_5LFGwpItMZb2m8GiIldmIWiPOUsJlkxP76NCArjM/gviz/tq?range=L32:M33');
         query.send(handleQueryResponseRecycling);
 
-        
-        
       }
 
-      // Instantiate and draw our chart, passing in some options.
+      // Instantiate and draw material type chart
         function handleQueryResponseMaterial(response) {
           var options = {title: 'Material Breakdown',
                      titleTextStyle: { fontName: 'arial', fontSize: 20, },
@@ -45,6 +41,7 @@
           chart.draw(data, options);
       }
       
+      // Instantiate and draw recycling corectness chart
       function handleQueryResponseRecycling(response) {
           var options = {title: 'Recycling Correctness',
                      titleTextStyle: { fontName: 'arial', fontSize: 20, },
@@ -66,6 +63,7 @@
     </style>
     <table class="center">
       <tr>
+        <!-- div that will hold our charts -->
         <td><div id="Material_div" align='center'></div></td>
         <td><div id="Recycling_div" align='center'></div></td>
       </tr>
