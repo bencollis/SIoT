@@ -1,15 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-'''
-    RPi Web Server for DHT captured data  
-'''
-
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
 import sqlite3
 
+# run all the HTML pages
 @app.route('/footprint')
 def footprint():
    return render_template('LineChart.html')
